@@ -1,0 +1,22 @@
+name: daily-fetch
+on:
+  schedule:
+    - cron: "30 12 * * 1-5"   # 12:30 UTC = 6:00 PM IST, weekdays
+  workflow_dispatch:
+permissions:
+  contents: write
+jobs:
+  run:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with: { python-version: "3.12" }
+      - run: pip install yfinance pandas
+      - run: python fetch.py
+      - run: |
+          git config user.name "bot"
+          git config user.email "bot@users.noreply.github.com"
+          git add data.csv
+          git commit -m "daily update" || exit 0
+          git push
